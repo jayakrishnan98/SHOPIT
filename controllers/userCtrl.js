@@ -14,7 +14,7 @@ const userCtrl = {
 
             if(password.length < 6){
                 return res.status(400).json({msg: "The password must contain at-least 6 characters"})
-            }
+            }   
             
             //password encryption
             const passwordHash = await bcrypt.hash(password, 10)
@@ -41,10 +41,27 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
+
     refreshToken: (req, res) =>{
-        const rf_token = req.cookies.refreshtoken;
-        console.log(rf_token);
-        res.json({rf_token})
+        try {
+            const rf_token = req.cookies.refreshtoken;
+            if(!rf_token){
+                return res.status(400).json({msg: "Please Login or Register"})
+            }
+
+            jwt.verify(rf_token,process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
+                if(err){ return res.status(400).json({msg:"Please Login or Register"})}
+                const accesstoken = createAccessToken({id: user.id})
+                res.json({user, accesstoken}) 
+            })
+            // res.json({rf_token})
+            
+        } catch (err) {
+            return res.status(500).json({msg: err.message})   
+        }
+
+        
     }
     
 }
