@@ -41,6 +41,7 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+
     login: async(req,res)=>{
         try {
             const {email,password} = req.body;
@@ -52,13 +53,20 @@ const userCtrl = {
             if(!isMatch){return res.status(400).json({msg:"Incorrect Password"})}
 
             // if login succes create acces token and refresh token
-            res.json({msg:"Login Success!"})
+            const accesstoken = createAccessToken({id: user._id})
+            const refreshtoken = createRefreshToken({id: user._id})
+
+            res.cookie('refreshtoken', refreshtoken, {
+                httpOnly: true,
+                path: '/user/refresh_token'
+            })
+
+            res.json({accesstoken})
 
         } catch (err) {
             return res.status(400).json({msg: err.message})
         }
     },
-
 
     refreshToken: (req, res) =>{
         try {
@@ -79,6 +87,14 @@ const userCtrl = {
         }
 
         
+    },
+    logout: async (req, res)=>{
+        try {
+            res.clearCookie('refreshtoken', {path: '/user/refresh_token'});
+            return res.json({msg: "Logged out"})
+        } catch (err) {
+            return res.status(400).json({msg: err.message})
+        }
     }
     
 }
