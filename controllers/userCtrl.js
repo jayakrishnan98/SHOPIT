@@ -41,6 +41,23 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
+    login: async(req,res)=>{
+        try {
+            const {email,password} = req.body;
+
+            const user = await Users.findOne({email})
+            if(!user){return res.status(400).json({msg:"User does not exist."})}
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if(!isMatch){return res.status(400).json({msg:"Incorrect Password"})}
+
+            // if login succes create acces token and refresh token
+            res.json({msg:"Login Success!"})
+
+        } catch (err) {
+            return res.status(400).json({msg: err.message})
+        }
+    },
 
 
     refreshToken: (req, res) =>{
@@ -53,9 +70,9 @@ const userCtrl = {
             jwt.verify(rf_token,process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
                 if(err){ return res.status(400).json({msg:"Please Login or Register"})}
                 const accesstoken = createAccessToken({id: user.id})
-                res.json({user, accesstoken}) 
+                res.json({accesstoken}) 
             })
-            // res.json({rf_token})
+            
             
         } catch (err) {
             return res.status(500).json({msg: err.message})   
