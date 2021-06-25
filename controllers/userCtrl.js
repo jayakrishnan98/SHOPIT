@@ -41,7 +41,6 @@ const userCtrl = {
             return res.status(500).json({msg: err.message})
         }
     },
-
     login: async(req,res)=>{
         try {
             const {email,password} = req.body;
@@ -67,7 +66,6 @@ const userCtrl = {
             return res.status(400).json({msg: err.message})
         }
     },
-
     refreshToken: (req, res) =>{
         try {
             const rf_token = req.cookies.refreshtoken;
@@ -94,6 +92,13 @@ const userCtrl = {
             return res.json({msg: "Logged out"})
         } catch (err) {
             return res.status(400).json({msg: err.message})
+        }
+    },
+    getUser: async(req, res)=>{
+        try {
+            res.json(req.user)
+        } catch (err) {
+            return res.status(500).json({msg: err.message})
         }
     }
     
